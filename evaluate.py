@@ -1,5 +1,6 @@
 # load checkpoint and evaluating
-from os.path import join
+from os.path import join, dirname, exists
+from os import makedirs
 from functools import partial
 import argparse
 
@@ -17,36 +18,41 @@ from model.score import score_files
 def main():
 
     parser = argparse.ArgumentParser(description="Im2Latex Evaluating Program")
-    parser.add_argument('--model_path', required=True,
+    parser.add_argument('--model_path', type=str, default="./ckpts/best_ckpt.pt", ###
                         help='path of the evaluated model')
 
     # model args
     parser.add_argument("--data_path", type=str,
-                        default="./sample_data/", help="The dataset's dir")
+                        default="./data/", help="The dataset's dir")
     parser.add_argument("--cuda", action='store_true',
                         default=True, help="Use cuda or not")
     parser.add_argument("--batch_size", type=int, default=32)
-    parser.add_argument("--beam_size", type=int, default=5)
+    parser.add_argument("--beam_size", type=int, default=1) ###
     parser.add_argument("--result_path", type=str,
                         default="./results/result.txt", help="The file to store result")
     parser.add_argument("--ref_path", type=str,
-                        default="./results/ref.txt", help="The file to store reference")
+                        default="./sample_results/ref.txt", help="The file to store reference")
     parser.add_argument("--max_len", type=int,
                         default=64, help="Max step of decoding")
     parser.add_argument("--split", type=str,
-                        default="validate", help="The data split to decode")
+                        default="test", help="The data split to decode")
 
     args = parser.parse_args()
 
-    # 加载 模型
-    checkpoint = torch.load(join(args.model_path))
+    # Ensure the results directory exists ###
+    result_dir = dirname(args.result_path)
+    if not exists(result_dir):
+        makedirs(result_dir)
+
+    # loading models
+    checkpoint = torch.load(join(args.model_path), map_location=torch.device('cpu')) ###
     model_args = checkpoint['args']
 
-    # 读入词典,设置其他相关参数
+    # read the dictionary and set other relevant parameters
     vocab = load_vocab(args.data_path)
     use_cuda = True if args.cuda and torch.cuda.is_available() else False
 
-    # 加载测试集
+    # loading Test Sets
     data_loader = DataLoader(
         Im2LatexDataset(args.data_path, args.split, args.max_len),
         batch_size=args.batch_size,
