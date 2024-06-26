@@ -91,6 +91,24 @@ python evaluate.py --split=test \
 - [ ] A HTML Page allowing upload picture to decode
 
 
+---
+
+## Code Updates
+
+- `build_vocab.py`, `evaluate.py`, `preprocess.py`, `train.py` 일부 변경
+- sample data, result 및 `sample_evaluate.py` 추가
+- `best_ckpt.pt`
+  - train loss: 0.1007, valid loss: 0.2169
+
+
+![image](https://github.com/shoprady/im2latex/assets/121270700/4ef19126-6995-488c-bc0c-3fad3af2b2eb)
+
+
+## Improved performance for test dataset
+
+| BLUE-4 | Edit Distance | Exact Match |
+| ------ | ------------- | ----------- |
+| 69.72  | 66.39         | 9.344        |
 
 
 
